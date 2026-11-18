@@ -75,7 +75,7 @@ def get_phone_number(prompt):
             print("Field cannot be left blank. Please try again.")
         else:
             try:
-                return validate_ane_normalize_number(user_input)
+                return validate_and_normalize_number(user_input)
             except ValueError as error:
                 print(error)
 
