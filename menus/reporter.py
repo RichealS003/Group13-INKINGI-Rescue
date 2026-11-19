@@ -16,6 +16,21 @@ severity_levels = {
 }
 
 #HELPER FUNCTIONS
+
+#Generates an emergency id to use 
+def generate_emergency_id():
+
+
+#Prints out the report final results for easy preview
+def report_preview(emergency_id, emergency_type, district, landmark, severity):
+    print("\n---------------Emergency reported successfully---------------")
+    print(f"Emergency ID: {emergency_id}")
+    print(f"Emergency type: {emergency_type}")
+    print(f"Location: {district} near {landmark}")
+    print(f"Severity: {severity}")
+
+
+#Prints out a summary of teh report for confirmation
 def report_summary(emergency_type, district, landmark, severity, phone_number):
     print("\n---------------Confirm Report---------------")
     print(f"Emergency type: {emergency_type}")
@@ -49,7 +64,14 @@ def report_emergency():
     report_summary()
     user_confirmation = get_yes_and_no_choice("Do you want to proceed with the report? (y/n)")
     if not user_confirmation:
-        print("Confirmation re")
+        print("Confirmation rejected. Returning to menu")
+        return None
+
+    try:
+        pass
+    except sqlite3.Error as error:
+        print(f"Error: The report couldn't be saved due to {error}")
+        return None
 
     #insert the emergency into sql database
 
