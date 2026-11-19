@@ -1,5 +1,4 @@
-#These are placeholder names for the actual names that will be used for the various functions
-from database.database import initialize_database 
+from database import database as db
 from menus.reporter import reporter_menu 
 from menus.dispatcher import dispatcher_menu
 
@@ -26,9 +25,19 @@ def display_main_menu():
         else:
             print("Invalid choice. Please select one of the options(1-3)")
 
+
 def main():
-    initialize_database()
-    display_main_menu()
-    
+    if not db.initialize():
+        print("Could not set up the database. Exiting.")
+        return
+
+    try:
+        print("Welcome to INKINGI Rescue")
+        # menus will be called from here
+        display_main_menu()
+    finally:
+        db.close_db_connection()
+
+
 if __name__ == "__main__":
     main()
