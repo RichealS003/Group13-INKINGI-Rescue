@@ -119,3 +119,51 @@ def view_active_emergencies():
 
     for emergency in emergencies:
         print(f"ID: {emergency[0]} | Severity: {emergency[1]} | Status: {emergency[2]} | Location: {emergency[3]} - near {emergency[4]}")
+
+
+
+#This is the function for dispatching an available ambulance.
+#Dispatcher menu option 3.
+def dispatch_ambulance():
+    emergency_input = input("Enter the Emergency ID you want to dispatch an ambulance for: ").strip()
+    db.cursor.execute("SELECT * FROM emergencies WHERE emergency_id = %s", (emergency_input, ))
+    emergency = db.cursor.fetchone()
+
+    if emergency is None:
+        print("Emergency ID not found. Please check and try again.")
+        return
+
+    #This is based on the current order in the emergency table
+    district = emergency[2]
+    current_status = emergency[6]
+
+    #An ambulance can only be dispatched for an emergency that is still waiting.
+    if current_status != "REPORTED":
+        print("This emergency is not waiting for an ambulance.")
+        return
+
+    #First we look for an available ambulance in the same district (the nearest one).
+    db.cursor.execute("SELECT * FROM ambulances WHERE status = 'AVAILABLE' AND district = %s", (district, ))
+    ambulances = db.cursor.fetchall()
+
+    #If there is none there, we take any available ambulance.
+    if len(ambulances) == 0:
+        db.cursor.execute("SELECT * FROM ambulances WHERE status = 'AVAILABLE'")
+        ambulances = db.cursor.fetchall()
+
+    if len(ambulances) == 0:
+        print("No available ambulances found.")
+        return
+
+    ambulance_id = ambulances[0][0]
+    plate_number = ambulances[0][1]
+
+    #Changing both statuses and saving the dispatch time in the dispatch log.
+    db.cursor.execute("UPDATE emergencies SET status = %s, ambulance_id = %s WHERE emergency_id = %s", ("DISPATCHED", ambulance_id, emergency_input))
+    db.cursor.execute("UPDATE ambulances SET status = %s WHERE ambulance_id = %s", ("BUSY", ambulance_id))
+    db.cursor.execute("INSERT INTO dispatch_log (emergency_id, ambulance_id, status) VALUES (%s, %s, %s)", (emergency_input, ambulance_id, "DISPATCHED"))
+    db.connection.commit()
+
+    print("Ambulance dispatched successfully.")
+    print(f"Emergency ID: {emergency_input}")
+    print(f"Ambulance ID: {ambulance_id} ({plate_number})")
