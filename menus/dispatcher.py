@@ -168,3 +168,38 @@ def dispatch_ambulance():
     print("Ambulance dispatched successfully.")
     print(f"Emergency ID: {emergency_input}")
     print(f"Ambulance ID: {ambulance_id} ({plate_number})")
+
+
+
+#This is the dispatcher menu.
+def dispatcher_menu():
+    while True:
+        print("\n--------------------Dispatcher Screen--------------------")
+        print("What are we doing today?")
+        print("1. Report a new emergency")
+        print("2. View active emergencies")
+        print("3. Dispatch an available ambulance")
+        print("4. Update emergency status")
+        print("5. Manage circle of trust contacts")
+        print("6. View response time report")
+        print("0. Return to main menu")
+        print("")
+
+        user_input = get_menu_choice("Type a number between 0-6: ", 0, 6)
+
+        if user_input == 1:
+            report_emergency()
+        elif user_input == 2:
+            view_active_emergencies()
+        elif user_input == 3:
+            dispatch_ambulance()
+        elif user_input == 4:
+            resolve_emergency()
+        elif user_input == 5:
+            manage_circle_of_trust()
+        elif user_input == 6:
+            view_response_time_report()
+        else:
+            print("Returning to main menu")
+            return
+
