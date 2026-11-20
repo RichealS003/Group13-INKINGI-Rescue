@@ -42,3 +42,19 @@ def resolve_emergency():
     db.cursor.execute("UPDATE emergencies SET status = %s, arrival_time = %s WHERE emergency_id = %s", ("RESOLVED", arrival_time, emergency_input))
     db.connection.commit()
     print("Emergency successfully marked as RESOLVED. Arrival time recorded.")
+
+#These are the same lists as the reporter menu so both menus save the same values.
+emergency_types = {
+    1: "Road Accident",
+    2: "Medical Emergency",
+    3: "Fire",
+    4: "Other"
+}
+
+severity_levels = {
+    1: "Low",
+    2: "Medium",
+    3: "High",
+    4: "Critical"
+}
+
