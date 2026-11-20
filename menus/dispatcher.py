@@ -101,3 +101,21 @@ def report_emergency():
     print(f"Severity: {severity}")
     print("Status: REPORTED")
     print("\nPlease keep the Emergency ID for reference.")
+
+
+
+#This is the function for viewing the active emergencies.
+#Dispatcher menu option 2.
+def view_active_emergencies():
+    print("Active Emergencies")
+
+    #Only REPORTED and DISPATCHED emergencies are active, so RESOLVED and CANCELLED are left out.
+    db.cursor.execute("SELECT emergency_id, severity, status, district, landmark FROM emergencies WHERE status IN ('REPORTED', 'DISPATCHED')")
+    emergencies = db.cursor.fetchall()
+
+    if len(emergencies) == 0:
+        print("No active or pending emergencies. It's all quiet here.")
+        return
+
+    for emergency in emergencies:
+        print(f"ID: {emergency[0]} | Severity: {emergency[1]} | Status: {emergency[2]} | Location: {emergency[3]} - near {emergency[4]}")
