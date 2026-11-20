@@ -63,14 +63,15 @@ def create_tables():
         )
     """)
 
-    # cursor.execute("""
-    #     CREATE TABLE IF NOT EXISTS contacts (
-    #         contact_id   INT AUTO_INCREMENT PRIMARY KEY,
-    #         name         VARCHAR(100) NOT NULL,
-    #         phone_number VARCHAR(15)  NOT NULL,
-    #         district     VARCHAR(50)
-    #     )
-    # """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS contacts (
+            contact_id    INT AUTO_INCREMENT PRIMARY KEY,
+            patient_name  VARCHAR(100) NOT NULL,
+            contact_name  VARCHAR(100) NOT NULL,
+            contact_phone VARCHAR(15)  NOT NULL,
+            relationship  VARCHAR(50)  NOT NULL
+        )
+    """)
 
     # One row every time an emergency changes status (REPORTED -> DISPATCHED
     # -> ARRIVED ...). The timestamps here are used for response-time stats.
