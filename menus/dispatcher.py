@@ -106,13 +106,127 @@ def report_emergency():
 
 
 #This is the function for viewing the active emergencies.
+#Dispatcher menu option 2
+Dispatcher · PY
+from database import database as db
+import datetime
+from utils.validators import get_menu_choice, get_phone_number, get_place_text
+
+
+
+
+
+
+
+#This is the function for marking an emergency as resolved. 
+# Dispatcher menu option 4.
+def resolve_emergency():
+    emergency_input = input("Enter the Emergency ID for the emergency you want to resolve:").strip()
+    db.cursor.execute("SELECT * FROM emergencies WHERE emergency_id = %s", (emergency_input, ))
+    emergency = db.cursor.fetchone()
+
+    if emergency is None:
+        print("Emergency ID not found. Please check and try again.")
+        return
+    else:
+        #This is based on the current order in the emergency table
+        current_status = emergency[6].upper()
+
+    if current_status == "RESOLVED":
+        print("This emergency has already been resolved.")
+        return
+    #An emergency cann only be marked as resolved when the ambulance has been dispatched and arrives at the location.
+    if current_status != "DISPATCHED":
+        print("This emergency cannot be resolved because an ambulance has not yet been dispatched for it.")
+        return
+
+    confirmation = input("Has the ambulance arrived at the location? (Yes/No)").strip().lower()
+    if confirmation == "yes" or confirmation == "y":
+        arrival_time = datetime.datetime.now()
+    elif confirmation == "no" or confirmation == "n":
+        print("The ambulance has not arrived yet.")
+        return
+    else:
+        print("Invalid choice. Please try again.")
+        return
+
+    db.cursor.execute("UPDATE emergencies SET status = %s, arrival_time = %s WHERE emergency_id = %s", ("RESOLVED", arrival_time, emergency_input))
+    db.connection.commit()
+    print("Emergency successfully marked as RESOLVED. Arrival time recorded.")
+
+#These are the same lists as the reporter menu so both menus save the same values.
+emergency_types = {
+    1: "Road Accident",
+    2: "Medical Emergency",
+    3: "Fire",
+    4: "Other"
+}
+
+severity_levels = {
+    1: "Low",
+    2: "Medium",
+    3: "High",
+    4: "Critical"
+}
+
+
+#This is the function for reporting an emergency as a dispatcher.
+#Dispatcher menu option 1.
+def report_emergency():
+    print("Report Emergency")
+
+    
+    print("Type of emergency:")
+    for number in emergency_types:
+        print(f"{number}. {emergency_types[number]}")
+    type_choice = get_menu_choice("Choose the type of emergency (1-4): ", 1, 4)
+    emergency_type = emergency_types[type_choice]
+
+
+    district = get_place_text("Which district did it happen in? (e.g. Kicukiro): ")
+    landmark = get_place_text("What is the nearest landmark? (e.g. Nyanza Bus park): ")
+
+
+    print("Severity level:")
+    for number in severity_levels:
+        print(f"{number}. {severity_levels[number]}")
+    severity_choice = get_menu_choice("Choose the severity level (1-4): ", 1, 4)
+    severity = severity_levels[severity_choice]
+
+
+    phone_number = get_phone_number("What is the caller's phone number? ")
+
+    #Saving the emergency in the database. The ID and the time are made by the database.
+    try:
+        db.cursor.execute("INSERT INTO emergencies (type, district, landmark, severity, caller_number) VALUES (%s, %s, %s, %s, %s)", (emergency_type, district, landmark, severity, phone_number))
+        db.connection.commit()
+        emergency_id = db.cursor.lastrowid
+    except Exception as e:
+        print(f"Database Error: Could not save the emergency. {e}")
+        return
+
+    print("\nEmergency reported successfully.")
+    print(f"Emergency ID: {emergency_id}")
+    print(f"Emergency type: {emergency_type}")
+    print(f"Location: {district} - near {landmark}")
+    print(f"Severity: {severity}")
+    print("Status: REPORTED")
+    print("\nPlease keep the Emergency ID for reference.")
+
+
+
+#This is the function for viewing the active emergencies.
 #Dispatcher menu option 2.
 def view_active_emergencies():
     print("Active Emergencies")
 
     #Only REPORTED and DISPATCHED emergencies are active, so RESOLVED and CANCELLED are left out.
-    db.cursor.execute("SELECT emergency_id, severity, status, district, landmark FROM emergencies WHERE status IN ('REPORTED', 'DISPATCHED')")
-    emergencies = db.cursor.fetchall()
+    try:
+        db.cursor.execute("SELECT emergency_id, severity, status, district, landmark FROM emergencies WHERE status IN ('REPORTED', 'DISPATCHED')")
+        emergencies = db.cursor.fetchall()
+    except Exception as e:
+        print(f"Database Error: Could not fetch the emergencies. {e}")
+        return
 
     if len(emergencies) == 0:
         print("No active or pending emergencies. It's all quiet here.")
@@ -127,49 +241,55 @@ def view_active_emergencies():
 #Dispatcher menu option 3.
 def dispatch_ambulance():
     emergency_input = input("Enter the Emergency ID you want to dispatch an ambulance for: ").strip()
-    db.cursor.execute("SELECT * FROM emergencies WHERE emergency_id = %s", (emergency_input, ))
-    emergency = db.cursor.fetchone()
 
-    if emergency is None:
-        print("Emergency ID not found. Please check and try again.")
-        return
+    try:
+        db.cursor.execute("SELECT * FROM emergencies WHERE emergency_id = %s", (emergency_input, ))
+        emergency = db.cursor.fetchone()
 
-    #This is based on the current order in the emergency table
-    district = emergency[2]
-    current_status = emergency[6]
+        if emergency is None:
+            print("Emergency ID not found. Please check and try again.")
+            return
 
-    #An ambulance can only be dispatched for an emergency that is still waiting.
-    
-    if current_status != "REPORTED":
-        print("This emergency is not waiting for an ambulance.")
-        return
+        #This is based on the current order in the emergency table
+        district = emergency[2]
+        current_status = emergency[6]
 
-    #First we look for an available ambulance in the same district (the nearest one).
-    db.cursor.execute("SELECT * FROM ambulances WHERE status = 'AVAILABLE' AND district = %s", (district, ))
-    ambulances = db.cursor.fetchall()
+        #An ambulance can only be dispatched for an emergency that is still waiting.
+        if current_status != "REPORTED":
+            print("This emergency is not waiting for an ambulance.")
+            return
 
-    #If there is none there, we take any available ambulance.
-    if len(ambulances) == 0:
-        db.cursor.execute("SELECT * FROM ambulances WHERE status = 'AVAILABLE'")
+        #First we look for an available ambulance in the same district (the nearest one).
+        db.cursor.execute("SELECT * FROM ambulances WHERE status = 'AVAILABLE' AND district = %s", (district, ))
         ambulances = db.cursor.fetchall()
 
-    if len(ambulances) == 0:
-        print("No available ambulances found.")
+        #If there is none there, we take any available ambulance.
+        if len(ambulances) == 0:
+            db.cursor.execute("SELECT * FROM ambulances WHERE status = 'AVAILABLE'")
+            ambulances = db.cursor.fetchall()
+
+        if len(ambulances) == 0:
+            print("No available ambulances found.")
+            return
+
+        ambulance_id = ambulances[0][0]
+        plate_number = ambulances[0][1]
+
+        #Changing both statuses and saving the dispatch time in the dispatch log.
+        db.cursor.execute("UPDATE emergencies SET status = %s, ambulance_id = %s WHERE emergency_id = %s", ("DISPATCHED", ambulance_id, emergency_input))
+        db.cursor.execute("UPDATE ambulances SET status = %s WHERE ambulance_id = %s", ("BUSY", ambulance_id))
+        db.cursor.execute("INSERT INTO dispatch_log (emergency_id, ambulance_id, status) VALUES (%s, %s, %s)", (emergency_input, ambulance_id, "DISPATCHED"))
+        db.connection.commit()
+
+    except Exception as e:
+        #If something failed half way, we undo the changes so nothing is saved by mistake.
+        db.connection.rollback()
+        print(f"Database Error: Could not dispatch the ambulance. {e}")
         return
-
-    ambulance_id = ambulances[0][0]
-    plate_number = ambulances[0][1]
-
-    #Changing both statuses and saving the dispatch time in the dispatch log.
-    db.cursor.execute("UPDATE emergencies SET status = %s, ambulance_id = %s WHERE emergency_id = %s", ("DISPATCHED", ambulance_id, emergency_input))
-    db.cursor.execute("UPDATE ambulances SET status = %s WHERE ambulance_id = %s", ("BUSY", ambulance_id))
-    db.cursor.execute("INSERT INTO dispatch_log (emergency_id, ambulance_id, status) VALUES (%s, %s, %s)", (emergency_input, ambulance_id, "DISPATCHED"))
-    db.connection.commit()
 
     print("Ambulance dispatched successfully.")
     print(f"Emergency ID: {emergency_input}")
     print(f"Ambulance ID: {ambulance_id} ({plate_number})")
-
 
 
 #This is the dispatcher menu.
@@ -203,4 +323,3 @@ def dispatcher_menu():
         else:
             print("Returning to main menu")
             return
-
