@@ -62,27 +62,27 @@ severity_levels = {
 #This is the function for reporting an emergency as a dispatcher.
 #Dispatcher menu option 1.
 def report_emergency():
-    print("\n--------------------Report Emergency--------------------")
+    print("Report Emergency")
 
-    #Getting the emergency type
+    
     print("Type of emergency:")
     for number in emergency_types:
         print(f"{number}. {emergency_types[number]}")
     type_choice = get_menu_choice("Choose the type of emergency (1-4): ", 1, 4)
     emergency_type = emergency_types[type_choice]
 
-    #Getting the district and the landmark
+
     district = get_place_text("Which district did it happen in? (e.g. Kicukiro): ")
     landmark = get_place_text("What is the nearest landmark? (e.g. Nyanza Bus park): ")
 
-    #Getting the severity level
+
     print("Severity level:")
     for number in severity_levels:
         print(f"{number}. {severity_levels[number]}")
     severity_choice = get_menu_choice("Choose the severity level (1-4): ", 1, 4)
     severity = severity_levels[severity_choice]
 
-    #Getting the phone number of the caller
+
     phone_number = get_phone_number("What is the caller's phone number? ")
 
     #Saving the emergency in the database. The ID and the time are made by the database.
@@ -138,6 +138,7 @@ def dispatch_ambulance():
     current_status = emergency[6]
 
     #An ambulance can only be dispatched for an emergency that is still waiting.
+    
     if current_status != "REPORTED":
         print("This emergency is not waiting for an ambulance.")
         return
