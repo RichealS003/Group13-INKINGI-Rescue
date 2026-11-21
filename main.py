@@ -32,7 +32,8 @@ def main():
         return
 
     try:
-        print("Welcome to INKINGI Rescue")
+        #Removed this print statement to avoid duplicate printing of the welcome message.
+        # print("Welcome to INKINGI Rescue")
         # menus will be called from here
         display_main_menu()
     finally:
