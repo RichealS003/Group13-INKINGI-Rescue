@@ -20,7 +20,7 @@ severity_levels = {
 #Prints out the report final results for easy preview
 def report_preview(emergency_id, emergency_type, district, landmark, severity):
     print("\n---------------Emergency reported successfully---------------")
-    print(f"Emergency ID: {emergency_id}")
+    #!print(f"Emergency ID: {emergency_id}")
     print(f"Emergency type: {emergency_type}")
     print(f"Location: {district} near {landmark}")
     print(f"Severity: {severity}")
@@ -29,7 +29,7 @@ def report_preview(emergency_id, emergency_type, district, landmark, severity):
 #Prints out a summary of teh report for confirmation
 def report_summary(emergency_type, district, landmark, severity, phone_number):
     print("\n---------------Confirm Report---------------")
-    print(f"Emergency ID: EM-{emergency}")
+    #!print(f"Emergency ID: EM-{emergency}") Enter the function from emergency that will print the emergency ID
     print(f"Emergency type: {emergency_type}")
     print(f"Location: {district} near {landmark}")
     print(f"Severity: {severity}")
