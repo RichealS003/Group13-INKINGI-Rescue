@@ -58,6 +58,7 @@ def create_tables():
             caller_number VARCHAR(15)  NOT NULL,
             status        VARCHAR(20)  NOT NULL DEFAULT 'REPORTED',
             ambulance_id  INT,
+            arrival_time  DATETIME,
             time_reported DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (ambulance_id) REFERENCES ambulances(ambulance_id)
         )
@@ -65,11 +66,21 @@ def create_tables():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS contacts (
+<<<<<<< HEAD
             contact_id    INT AUTO_INCREMENT PRIMARY KEY,
             patient_name  VARCHAR(100) NOT NULL,
             contact_name  VARCHAR(100) NOT NULL,
             contact_phone VARCHAR(15)  NOT NULL,
             relationship  VARCHAR(50)  NOT NULL
+=======
+            contact_id   INT AUTO_INCREMENT PRIMARY KEY,
+            patient_name         VARCHAR(100) NOT NULL,
+            contact_name         VARCHAR(100) NOT NULL,
+            contact_number VARCHAR(15)  NOT NULL,
+            relationship VARCHAR(50) NOT NULL,
+            emergency_id INT NOT NULL,
+            FOREIGN KEY (emergency_id) REFERENCES emergencies(emergency_id)
+>>>>>>> main
         )
     """)
 
