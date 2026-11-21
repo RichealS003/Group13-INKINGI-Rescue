@@ -45,7 +45,7 @@ class Ambulance:
             db.connection.commit()
             if db.cursor.rowcount == 0:
                 print(f"No ambulance found with ID {self.ambulance_id}")
-            return False
+                return False
             self.status = new_status
             print(f"Successful!")
             return True
