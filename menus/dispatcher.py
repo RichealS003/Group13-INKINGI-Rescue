@@ -4,10 +4,6 @@ from utils.validators import get_menu_choice, get_phone_number, get_place_text
 
 
 
-
-
-
-
 #This is the function for marking an emergency as resolved. 
 # Dispatcher menu option 4.
 def resolve_emergency():
@@ -25,7 +21,7 @@ def resolve_emergency():
     if current_status == "RESOLVED":
         print("This emergency has already been resolved.")
         return
-    #An emergency cann only be marked as resolved when the ambulance has been dispatched and arrives at the location.
+    #An emergency can only be marked as resolved when the ambulance has been dispatched and arrives at the location.
     if current_status != "DISPATCHED":
         print("This emergency cannot be resolved because an ambulance has not yet been dispatched for it.")
         return
@@ -44,6 +40,36 @@ def resolve_emergency():
     db.connection.commit()
     print("Emergency successfully marked as RESOLVED. Arrival time recorded.")
 
+
+
+
+def view_response_time_report():
+    db.cursor.execute("""
+    SELECT emergency_id, time_reported, arrival_time
+    FROM emergencies
+    WHERE status = 'RESOLVED' AND arrival_time IS NOT NULL
+""")
+    resolved_emergencies = db.cursor.fetchall()
+
+    if not resolved_emergencies:
+        print("No resolved emergencies with recorded arrival times were found.")
+        return
+
+    #This will hold the running total of the response times for all the resolved emergencies.
+    total_response_time = 0
+    print("*"*50)
+    print(f"INKINGI RESCUE - RESPONSE TIME REPORT.")
+    print("*"*50)
+    for emergency in resolved_emergencies:
+        emergency_id, time_reported, arrival_time = emergency
+        response_time = arrival_time - time_reported
+        response_minutes = response_time.total_seconds()/60
+        print(f"Emergency ID: {emergency_id}.\n Response Time: {response_minutes:.2f} minutes.")
+        total_response_time += response_minutes
+    average_response_time = total_response_time/len(resolved_emergencies)
+    print(f"The Average Response Time is: {average_response_time:.2f} minutes.")
+    
+        
 #These are the same lists as the reporter menu so both menus save the same values.
 emergency_types = {
     1: "Road Accident",
@@ -211,6 +237,6 @@ def dispatcher_menu():
         elif user_input == 6:
             view_response_time_report()
         else:
-            print("Returning to main menu")
+            print("Invalid Choice. Returning to main menu")
             return
 
