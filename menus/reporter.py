@@ -1,5 +1,5 @@
 from utils.validators import get_menu_choice, get_yes_and_no_choice, get_phone_number, get_place_text
-from models.emergency import Emergency, insert_emergency, get_last_emergency_number
+from models.emergency import Emergency, insert_emergency
 
 emergency_types_dict = {
     1: "Road Accident", 
@@ -15,11 +15,7 @@ severity_levels = {
     4: "Critical"
 }
 
-#HELPER FUNCTIONS
-
-#Generates an emergency id to use 
-def generate_emergency_id():
-
+#HELPER FUNCTIONS--------------------------------------------------
 
 #Prints out the report final results for easy preview
 def report_preview(emergency_id, emergency_type, district, landmark, severity):
@@ -33,12 +29,13 @@ def report_preview(emergency_id, emergency_type, district, landmark, severity):
 #Prints out a summary of teh report for confirmation
 def report_summary(emergency_type, district, landmark, severity, phone_number):
     print("\n---------------Confirm Report---------------")
+    print(f"Emergency ID: EM-{emergency}")
     print(f"Emergency type: {emergency_type}")
     print(f"Location: {district} near {landmark}")
     print(f"Severity: {severity}")
     print(f"Phone Number: {phone_number}")
 
-#REPORTER MENU LOGIC
+#REPORTER MENU LOGIC---------------------------------------------------
 
 def report_emergency():
     print("\n--------------------Report Emergency--------------------")
@@ -67,15 +64,25 @@ def report_emergency():
         print("Confirmation rejected. Returning to menu")
         return None
 
-    try:
-        pass
-    except sqlite3.Error as error:
-        print(f"Error: The report couldn't be saved due to {error}")
+    #insert the emergency into sql database
+    emergency_report = Emergency( 
+        emergency_type=emergency_type,
+        district=district,
+        landmark=landmark,
+        severity=severity_input,
+        phone=phone_number)
+
+    if not insert_emergency(emergency_report):
+        print("The report couldn't be saved. Please try again.")
         return None
 
-    #insert the emergency into sql database
 
-#MAIN REPORTER MENU
+#CIRCLE OF TRUST UPDATE FUNCTION----------------------------------
+def update_circle_of_trust():
+    #!Call function from circle of trust update contacts (probably in dispatcher.py)
+    pass
+
+#MAIN REPORTER MENU------------------------------------------------
 
 def reporter_menu():
     print("\n--------------------Reporter Screen--------------------")
@@ -86,11 +93,10 @@ def reporter_menu():
     print("")
 
     user_input = get_menu_choice("Type a number between 0-2: ",0, 2)
-    #! Call the functions
     if user_input == 1:
-        pass 
+        report_emergency()
     elif user_input == 2:
-        pass
+        update_circle_of_trust()
     else:
         print("Returning to main menu")
         return
