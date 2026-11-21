@@ -3,6 +3,45 @@ import datetime
 from utils.validators import get_menu_choice, get_phone_number, get_place_text
 
 
+def manage_circle_of_trust():
+    # this funstion Lets the dispatcher view contacts and send simulated alerts.
+    print("\nCIRCLE OF TRUST MANAGEMENT")
+    
+    # first we need to know which patient or emergency we are looking up
+    patient_name = input("Enter the patient's full name to look up contacts: ").strip()
+    
+    if not patient_name:
+        print("Patient name cannot be empty. Returning to menu.")
+        return
+
+    # then we try to fetch their contacts from the database
+    try:
+        query = "SELECT contact_name, contact_phone, relationship FROM contacts WHERE patient_name = %s"
+        db.cursor.execute(query, (patient_name,))
+        contacts = db.cursor.fetchall()
+        
+        if not contacts:
+            print(f"\nNo contacts found for {patient_name} in the Circle of Trust.")
+            return
+            
+        print(f"\nContacts for {patient_name}:")
+        for index, contact in enumerate(contacts, start=1):
+           
+            print(f"{index}. {contact[0]} ({contact[2]}) - {contact[1]}")
+            
+    except Exception as e:
+        print(f"Database Error: Could not fetch contacts. {e}")
+        return
+
+    # lastly we simulate sending an alert to everyone in the list
+    print("\nSENDING EMERGENCY ALERTS...")
+    for contact in contacts:
+        contact_name = contact[0]
+        phone = contact[1]
+        print(f"Alert sent to {contact_name} at {phone}: Emergency reported for {patient_name}. Help is on the way.")
+
+    print("\nAlerts completed. Returning to Dispatcher Menu...")
+
 
 #This is the function for marking an emergency as resolved. 
 # Dispatcher menu option 4.
@@ -39,8 +78,6 @@ def resolve_emergency():
     db.cursor.execute("UPDATE emergencies SET status = %s, arrival_time = %s WHERE emergency_id = %s", ("RESOLVED", arrival_time, emergency_input))
     db.connection.commit()
     print("Emergency successfully marked as RESOLVED. Arrival time recorded.")
-
-
 
 
 def view_response_time_report():
@@ -130,7 +167,6 @@ def report_emergency():
     print("\nPlease keep the Emergency ID for reference.")
 
 
-
 #This is the function for viewing the active emergencies.
 #Dispatcher menu option 2.
 def view_active_emergencies():
@@ -150,7 +186,6 @@ def view_active_emergencies():
 
     for emergency in emergencies:
         print(f"ID: {emergency[0]} | Severity: {emergency[1]} | Status: {emergency[2]} | Location: {emergency[3]} - near {emergency[4]}")
-
 
 
 #This is the function for dispatching an available ambulance.
@@ -239,4 +274,3 @@ def dispatcher_menu():
         else:
             print("Invalid Choice. Returning to main menu")
             return
-
