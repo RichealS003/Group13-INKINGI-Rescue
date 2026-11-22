@@ -82,33 +82,44 @@ def report_emergency():
 
 #CIRCLE OF TRUST UPDATE FUNCTION----------------------------------
 def update_circle_of_trust():
-    # this function lets the reporter add emergency contacts for a specific patient.
-    print("\nCIRCLE OF TRUST")
+    # this function lets the reporter add emergency contacts for a specific patient
+    print("\n--------------------Circle of Trust--------------------")
 
-    # first we ask for the patients name so we know whose contacts these are
+    # ask for the patient's name
     patient_name = input("Enter the patient's full name (e.g., John Doe): ").strip()
-
+    
     if not patient_name:
-        print("Patient name cannot be empty. Returning to menu.")
+        print("patient name cannot be empty, returning to menu")
         return
 
-    print(f"\n--- Adding contacts for: {patient_name} ---")
-    print("Type the person's name below. When you are finished, type 'done'.")
+    print(f"\nadding emergency contacts for patient: {patient_name.upper()}")
+    print("you can add multiple contacts, type 'done' when you are finished")
     
     while True:
-        contact_name = input("Enter contact's name (or type 'done' to finish): ").strip()
+        print("") 
+        contact_name = input("enter the emergency contact's name (or type 'done'): ").strip()
 
         if contact_name.lower() == 'done':
             break
 
         if not contact_name:
-            print("Contact name cannot be empty. Try again.")
+            print("contact name cannot be empty, try again")
             continue
 
-        contact_phone = input("Contact Phone (e.g., 0799888777): ").strip()
-        relationship = input("Relationship (e.g., Mother, Brother): ").strip()
+        # i am checking the phone number manually here instead of using the validators file because the current validator checks for a specific rwandan format that was breaking the loop when i tested it
+        while True:
+            contact_phone = input("Contact Phone (e.g., 0799888777): ").strip()
+            if len(contact_phone) >= 10 and contact_phone.isdigit():
+                break
+            print("invalid phone number, please enter at least 10 digits")
 
-        # second we insert the data into the MySQL database
+        # make sure the relationship isn't left blank
+        relationship = input("Relationship (e.g., Mother, Brother): ").strip()
+        if not relationship:
+            print("relationship cannot be empty, try again")
+            continue
+
+        # save it to the database
         try:
             query = """
                 INSERT INTO contacts (patient_name, contact_name, contact_phone, relationship)
@@ -118,12 +129,12 @@ def update_circle_of_trust():
 
             db.cursor.execute(query, values)
             db.connection.commit()
-            print(f"Success! {contact_name} added to the Circle of Trust.")
+            print(f"success, {contact_name} has been added to {patient_name}'s circle of trust")
 
         except Exception as e:
-            print(f"Database Error: Could not save contact. {e}")
+            print(f"database error, could not save contact: {e}")
 
-    print("\nReturning to Reporter Menu...")
+    print("\n--------------------Returning to Reporter Menu--------------------")
 
 #MAIN REPORTER MENU------------------------------------------------
 
