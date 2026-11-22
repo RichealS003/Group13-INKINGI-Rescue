@@ -33,7 +33,7 @@ def is_place_valid(info):
     if not info:
         raise ValueError("Invalid. Please type something and try again")
     if len(info) >= 2:
-        for character in input:
+        for character in info:
             if character.isalpha():
                 return True
     return False
@@ -45,7 +45,7 @@ def is_place_valid(info):
 #Prompts user for a menu choice and checks if the user types a number within range of the low value and high value
 def get_menu_choice(prompt, low, high):
     while True:
-        user_input = input(prompt).strip()
+        user_input = input(prompt.strip() + ' ').strip()
 
         if not user_input:
             print("Field cannot be left blank. Please try again.")
