@@ -126,18 +126,19 @@ def update_circle_of_trust():
 #MAIN REPORTER MENU------------------------------------------------
 
 def reporter_menu():
-    print("\n--------------------Reporter Screen--------------------")
-    print("What are we doing today?")
-    print("1. Report a new emergency")
-    print("2. Update circle of trust contacts")
-    print("0. Return to main menu")
-    print("")
+    while True:
+        print("\n=== Reporter Screen ===")
+        print("What are we doing today?")
+        print("1. Report a new emergency")
+        print("2. Update circle of trust contacts")
+        print("0. Return to main menu")
+        print("")
 
-    user_input = get_menu_choice("Type a number between 0-2: ",0, 2)
-    if user_input == 1:
-        report_emergency()
-    elif user_input == 2:
-        update_circle_of_trust()
-    else:
-        print("Returning to main menu")
-        return
+        user_input = get_menu_choice("Type a number between 0-2: ", 0, 2)
+        if user_input == 1:
+            report_emergency()
+        elif user_input == 2:
+            update_circle_of_trust()
+        else:
+            print("Returning to main menu")
+            return
