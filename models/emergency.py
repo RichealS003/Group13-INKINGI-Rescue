@@ -23,7 +23,7 @@ class Emergency:
         """
         try:
             sql_insert_query = """
-            INSERT INTO emergencies (emergency_type, district, landmark, severity,
+            INSERT INTO emergencies (type, district, landmark, severity,
             caller_number, status, ambulance_id, arrival_time)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
