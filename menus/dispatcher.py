@@ -1,5 +1,4 @@
 from database import database as db
-import datetime
 from utils.validators import get_menu_choice, get_phone_number, get_place_text
 
 
@@ -56,6 +55,7 @@ def resolve_emergency():
     else:
         #This is based on the current order in the emergency table
         current_status = emergency[6].upper()
+        ambulance_id = emergency[7]
 
     if current_status == "RESOLVED":
         print("This emergency has already been resolved.")
@@ -66,18 +66,29 @@ def resolve_emergency():
         return
 
     confirmation = input("Has the ambulance arrived at the location? (Yes/No)").strip().lower()
-    if confirmation == "yes" or confirmation == "y":
-        arrival_time = datetime.datetime.now()
-    elif confirmation == "no" or confirmation == "n":
+    if confirmation == "no" or confirmation == "n":
         print("The ambulance has not arrived yet.")
         return
-    else:
+    elif confirmation != "yes" and confirmation != "y":
         print("Invalid choice. Please try again.")
         return
 
-    db.cursor.execute("UPDATE emergencies SET status = %s, arrival_time = %s WHERE emergency_id = %s", ("RESOLVED", arrival_time, emergency_input))
-    db.connection.commit()
+    try:
+        #NOW() uses the database clock, the same clock that set time_reported.
+        #Using Python's datetime.now() here would be 2 hours off (Kigali time vs the server's UTC).
+        db.cursor.execute("UPDATE emergencies SET status = %s, arrival_time = NOW() WHERE emergency_id = %s", ("RESOLVED", emergency_input))
+        #The ambulance is free again so it can be dispatched to the next emergency.
+        db.cursor.execute("UPDATE ambulances SET status = %s WHERE ambulance_id = %s", ("AVAILABLE", ambulance_id))
+        db.cursor.execute("INSERT INTO dispatch_log (emergency_id, ambulance_id, status) VALUES (%s, %s, %s)", (emergency_input, ambulance_id, "RESOLVED"))
+        db.connection.commit()
+    except Exception as e:
+        #If something failed half way, we undo the changes so nothing is saved by mistake.
+        db.connection.rollback()
+        print(f"Database Error: Could not resolve the emergency. {e}")
+        return
+
     print("Emergency successfully marked as RESOLVED. Arrival time recorded.")
+    print("The ambulance is now AVAILABLE again.")
 
 
 def view_response_time_report():
