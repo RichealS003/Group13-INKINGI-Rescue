@@ -57,7 +57,6 @@ The system uses a MySQL database to store emergency records, ambulance informati
 - Assign an available ambulance to an emergency.
 - Update the emergency status to `DISPATCHED`.
 - Update the assigned ambulance status to `BUSY`.
-- Record dispatch activities in the dispatch log.
 
 ### Emergency Resolution
 - Retrieve an emergency using its unique ID.
@@ -65,8 +64,6 @@ The system uses a MySQL database to store emergency records, ambulance informati
 - Confirm whether the ambulance has arrived.
 - Update the emergency status to `RESOLVED`.
 - Record the ambulance's arrival timestamp.
-- Return the ambulance to `AVAILABLE` status.
-- Record the resolution event in the dispatch log.
 
 ### Response-Time Reporting
 - Retrieve resolved emergencies with recorded arrival times.
@@ -77,7 +74,7 @@ The system uses a MySQL database to store emergency records, ambulance informati
 ### Circle of Trust
 - Allow reporters to register trusted contacts for a patient.
 - Store patient names, contact names, phone numbers, and relationships.
-- Allow dispatchers to retrieve the contacts associated with a patient.
+- Allow dispatchers to retrieve contacts associated with a patient.
 - Simulate emergency alerts by displaying notification messages in the terminal.
 
 ### Input Validation
@@ -108,7 +105,7 @@ The dispatcher interface allows users to:
 1. Report a new emergency.
 2. View active emergencies.
 3. Dispatch an available ambulance.
-4. Update emergency status.
+4. Resolve an emergency.
 5. Manage Circle of Trust contacts.
 6. View response-time reports.
 7. Return to the main menu.
@@ -127,7 +124,7 @@ Initial status: `REPORTED`
 
 **Step 2: Ambulance Dispatched**
 
-The dispatcher selects an emergency. The system searches for an available ambulance, prioritizing one in the same district.
+The dispatcher selects an emergency. The system identifies an available ambulance, prioritizing one in the same district.
 
 Once assigned, the emergency status changes to `DISPATCHED`, and the ambulance status changes to `BUSY`.
 
@@ -135,7 +132,7 @@ Once assigned, the emergency status changes to `DISPATCHED`, and the ambulance s
 
 After confirming that the ambulance has arrived, the dispatcher resolves the emergency.
 
-The system records the arrival time, changes the emergency status to `RESOLVED`, and makes the ambulance available again.
+The system changes the emergency status to `RESOLVED` and records the arrival time.
 
 **Step 4: Response-Time Analysis**
 
@@ -199,8 +196,7 @@ INKINGI-RESCUE/
 │   └── validators.py
 │
 ├── main.py
-├── README.md
-└── requirements.txt
+└── README.md
 ```
 
 **Directory descriptions:**
@@ -208,9 +204,9 @@ INKINGI-RESCUE/
 - `database/`: Contains database configuration, connection management, database initialization, table creation, and sample ambulance records.
 - `menus/`: Contains the reporter and dispatcher interfaces and their associated operations.
 - `models/`: Contains classes representing emergencies, ambulances, and contacts.
-- `utils/`: Contains reusable input validation and formatting functions.
+- `utils/`: Contains reusable input validation functions.
 - `main.py`: Application entry point. Initializes the database and launches the main menu.
-- `requirements.txt`: Lists the external Python dependencies.
+- `README.md`: Provides project information and setup instructions.
 
 ---
 
@@ -264,7 +260,7 @@ Stores trusted contacts associated with patients.
 
 ### 7.4 Dispatch Log Table
 
-Maintains a record of emergency dispatch status changes.
+Stores dispatch-related records.
 
 | Column | Description |
 |---|---|
@@ -286,7 +282,6 @@ Before running the application, ensure that you have:
 
 - Python 3 installed.
 - MySQL Server installed and running.
-- MySQL Connector/Python installed.
 - Access to the project source code.
 
 ### Step 1: Clone the Repository
@@ -301,7 +296,11 @@ Navigate into the project directory:
 cd Group13-INKINGI-Rescue
 ```
 
-### Step 2: Create a Virtual Environment
+### Step 2: Create a Virtual Environment (Optional)
+
+A virtual environment is recommended to keep project dependencies separate from other Python projects.
+
+Create one using:
 
 ```bash
 python -m venv venv
@@ -319,17 +318,17 @@ On Linux or macOS:
 source venv/bin/activate
 ```
 
+You can skip this step if you prefer to use your existing Python environment.
+
 ### Step 3: Install Dependencies
 
-```bash
-pip install -r requirements.txt
-```
-
-If the requirements file is not available, install the MySQL connector directly:
+Install MySQL Connector/Python, which allows the application to communicate with the MySQL database.
 
 ```bash
 pip install mysql-connector-python
 ```
+
+Other modules used in the project, such as `datetime` and `re`, are included in Python's standard library and do not require separate installation.
 
 ### Step 4: Configure the Database
 
@@ -407,7 +406,7 @@ The validation module handles:
 - Phone number normalization.
 - Place and landmark validation.
 
-Database operations also include error handling in relevant functions. Transactions are committed after successful database changes, while rollback is used when dispatch or resolution operations fail.
+Database operations include error handling in relevant functions. Transactions are committed after successful database changes.
 
 ---
 
@@ -442,8 +441,7 @@ INKINGI Rescue demonstrates how software development and database management can
 
 By combining emergency reporting, ambulance allocation, contact management, status tracking, and response-time analysis, the system provides a foundation for exploring how digital tools can support emergency response coordination.
 
-**Project: INKINGI Rescue**  
-**Type: Command-Line Emergency Dispatch Management System**  
-**Language: Python**  
-**Database: MySQL**
-
+**Project:** INKINGI Rescue  
+**Type:** Command-Line Emergency Dispatch Management System  
+**Language:** Python  
+**Database:** MySQL
