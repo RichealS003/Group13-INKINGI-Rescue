@@ -1,5 +1,5 @@
 from database import database as db
-from utils.validators import get_menu_choice, get_phone_number, get_place_text
+from utils.validators import get_menu_choice, get_phone_number, get_place_text, get_yes_and_no_choice
 
 
 def manage_circle_of_trust():
@@ -160,6 +160,16 @@ def report_emergency():
 
     phone_number = get_phone_number("What is the caller's phone number? ")
 
+    #Showing a summary so the dispatcher can check it before it is saved
+    print("\n---------------Confirm Report---------------")
+    print(f"Emergency type: {emergency_type}")
+    print(f"Location: {district} - near {landmark}")
+    print(f"Severity: {severity}")
+    print(f"Phone Number: {phone_number}")
+    user_confirmation = get_yes_and_no_choice("Do you want to proceed with the report? (y/n) ")
+    if not user_confirmation:
+        print("Confirmation rejected. Returning to menu")
+        return
     #Saving the emergency in the database. The ID and the time are made by the database.
     try:
         db.cursor.execute("INSERT INTO emergencies (type, district, landmark, severity, caller_number) VALUES (%s, %s, %s, %s, %s)", (emergency_type, district, landmark, severity, phone_number))
@@ -245,7 +255,11 @@ def dispatch_ambulance():
 
     except Exception as e:
         #If something failed half way, we undo the changes so nothing is saved by mistake.
-        db.connection.rollback()
+        #The rollback has its own try, because if the connection is broken it can fail too and crash the app.
+        try:
+            db.connection.rollback()
+        except Exception:
+            pass
         print(f"Database Error: Could not dispatch the ambulance. {e}")
         return
 
