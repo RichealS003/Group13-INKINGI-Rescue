@@ -298,7 +298,7 @@ git clone https://github.com/RichealS003/Group13-INKINGI-Rescue.git
 Navigate into the project directory:
 
 ```bash
-cd INKINGI-RESCUE
+cd Group13-INKINGI-Rescue
 ```
 
 ### Step 2: Create a Virtual Environment
