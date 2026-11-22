@@ -92,9 +92,11 @@ def update_circle_of_trust():
         print("Patient name cannot be empty. Returning to menu.")
         return
 
+    print(f"\n--- Adding contacts for: {patient_name} ---")
+    print("Type the person's name below. When you are finished, type 'done'.")
+    
     while True:
-        print(f"\nAdding contacts for: {patient_name}")
-        contact_name = input("Contact Name (or type 'done' to finish): ").strip()
+        contact_name = input("Enter contact's name (or type 'done' to finish): ").strip()
 
         if contact_name.lower() == 'done':
             break
@@ -127,7 +129,9 @@ def update_circle_of_trust():
 
 def reporter_menu():
     while True:
-        print("\n=== Reporter Screen ===")
+        print("\n==============================")
+        print("       REPORTER SCREEN        ")
+        print("==============================") 
         print("What are we doing today?")
         print("1. Report a new emergency")
         print("2. Update circle of trust contacts")
