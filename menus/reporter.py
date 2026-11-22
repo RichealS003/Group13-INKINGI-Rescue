@@ -1,17 +1,18 @@
 from utils.validators import get_menu_choice, get_yes_and_no_choice, get_phone_number, get_place_text
 from models.emergency import Emergency, insert_emergency
+from database import database as db
 
 emergency_types_dict = {
-    1: "Road Accident", 
+    1: "Road Accident",
     2: "Medical Emergency",
     3: "Fire",
     4: "Other"
 }
 
 severity_levels = {
-    1: "Low", 
-    2: "Medium", 
-    3: "High", 
+    1: "Low",
+    2: "Medium",
+    3: "High",
     4: "Critical"
 }
 
@@ -26,7 +27,7 @@ def report_preview(emergency_id, emergency_type, district, landmark, severity):
     print(f"Severity: {severity}")
 
 
-#Prints out a summary of teh report for confirmation
+#Prints out a summary of the report for confirmation
 def report_summary(emergency_type, district, landmark, severity, phone_number):
     print("\n---------------Confirm Report---------------")
     #!print(f"Emergency ID: EM-{emergency}") Enter the function from emergency that will print the emergency ID
@@ -58,14 +59,14 @@ def report_emergency():
     phone_number = get_phone_number("What is your phone number? ")
 
     #Confirmation of report
-    report_summary()
+    report_summary(emergency_type, district, landmark, severity, phone_number)
     user_confirmation = get_yes_and_no_choice("Do you want to proceed with the report? (y/n)")
     if not user_confirmation:
         print("Confirmation rejected. Returning to menu")
         return None
 
     #insert the emergency into sql database
-    emergency_report = Emergency( 
+    emergency_report = Emergency(
         emergency_type=emergency_type,
         district=district,
         landmark=landmark,
@@ -79,8 +80,46 @@ def report_emergency():
 
 #CIRCLE OF TRUST UPDATE FUNCTION----------------------------------
 def update_circle_of_trust():
-    #!Call function from circle of trust update contacts (probably in dispatcher.py)
-    pass
+    # this function lets the reporter add emergency contacts for a specific patient.
+    print("\nCIRCLE OF TRUST")
+
+    # first we ask for the patients name so we know whose contacts these are
+    patient_name = input("Enter the patient's full name (e.g., John Doe): ").strip()
+
+    if not patient_name:
+        print("Patient name cannot be empty. Returning to menu.")
+        return
+
+    while True:
+        print(f"\nAdding contacts for: {patient_name}")
+        contact_name = input("Contact Name (or type 'done' to finish): ").strip()
+
+        if contact_name.lower() == 'done':
+            break
+
+        if not contact_name:
+            print("Contact name cannot be empty. Try again.")
+            continue
+
+        contact_phone = input("Contact Phone (e.g., 0799888777): ").strip()
+        relationship = input("Relationship (e.g., Mother, Brother): ").strip()
+
+        # second we insert the data into the MySQL database
+        try:
+            query = """
+                INSERT INTO contacts (patient_name, contact_name, contact_phone, relationship)
+                VALUES (%s, %s, %s, %s)
+            """
+            values = (patient_name, contact_name, contact_phone, relationship)
+
+            db.cursor.execute(query, values)
+            db.connection.commit()
+            print(f"Success! {contact_name} added to the Circle of Trust.")
+
+        except Exception as e:
+            print(f"Database Error: Could not save contact. {e}")
+
+    print("\nReturning to Reporter Menu...")
 
 #MAIN REPORTER MENU------------------------------------------------
 
