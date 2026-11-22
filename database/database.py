@@ -77,18 +77,41 @@ def create_tables():
 
     # One row every time an emergency changes status (REPORTED -> DISPATCHED
     # -> ARRIVED ...). The timestamps here are used for response-time stats.
-    # cursor.execute("""
-    #     CREATE TABLE IF NOT EXISTS dispatch_log (
-    #         log_id       INT AUTO_INCREMENT PRIMARY KEY,
-    #         emergency_id INT NOT NULL,
-    #         ambulance_id INT,
-    #         status       VARCHAR(20) NOT NULL,
-    #         logged_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
-    #         FOREIGN KEY (emergency_id) REFERENCES emergencies(emergency_id),
-    #         FOREIGN KEY (ambulance_id) REFERENCES ambulances(ambulance_id)
-    #     )
-    # """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS dispatch_log (
+            log_id       INT AUTO_INCREMENT PRIMARY KEY,
+            emergency_id INT NOT NULL,
+            ambulance_id INT,
+            status       VARCHAR(20) NOT NULL,
+            logged_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (emergency_id) REFERENCES emergencies(emergency_id),
+            FOREIGN KEY (ambulance_id) REFERENCES ambulances(ambulance_id)
+        )
+    """)
 
+    connection.commit()
+
+
+def seed_ambulances():
+    """Add some sample ambulances so the app can be tested right away."""
+
+    # (plate_number, district) - status is AVAILABLE by default
+    sample_ambulances = [
+        ("RAD 101 A", "Gasabo"),
+        ("RAD 102 A", "Gasabo"),
+        ("RAD 103 A", "Gasabo"),
+        ("RAD 201 B", "Kicukiro"),
+        ("RAD 202 B", "Kicukiro"),
+        ("RAD 301 C", "Nyarugenge"),
+        ("RAD 302 C", "Nyarugenge"),
+    ]
+
+    # INSERT IGNORE skips a plate number that is already in the table,
+    # so running this every time the app starts will not make duplicates
+    cursor.executemany(
+        "INSERT IGNORE INTO ambulances (plate_number, district) VALUES (%s, %s)",
+        sample_ambulances
+    )
     connection.commit()
 
 
@@ -100,6 +123,7 @@ def initialize():
     try:
         create_database()
         create_tables()
+        seed_ambulances()
         print("Database is ready")
         return True
     except mysql.connector.Error as err:
