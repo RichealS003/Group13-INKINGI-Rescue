@@ -45,12 +45,12 @@ def manage_circle_of_trust():
 #This is the function for marking an emergency as resolved. 
 # Dispatcher menu option 4.
 def resolve_emergency():
-    emergency_input = input("Enter the Emergency ID for the emergency you want to resolve:").strip()
+    emergency_input = input("Enter the Emergency ID for the emergency you want to resolve: ").strip()
     db.cursor.execute("SELECT * FROM emergencies WHERE emergency_id = %s", (emergency_input, ))
     emergency = db.cursor.fetchone()
 
     if emergency is None:
-        print("Emergency ID not found. Please check and try again.")
+        print(f"\nEmergency ID not found. Please check and try again.")
         return
     else:
         #This is based on the current order in the emergency table
@@ -100,13 +100,13 @@ def view_response_time_report():
     resolved_emergencies = db.cursor.fetchall()
 
     if not resolved_emergencies:
-        print("No resolved emergencies with recorded arrival times were found.")
+        print("No resolved emergencies with recorded arrival times were found. Returning to menu...")
         return
 
     #This will hold the running total of the response times for all the resolved emergencies.
     total_response_time = 0
     print("*"*50)
-    print(f"INKINGI RESCUE - RESPONSE TIME REPORT.")
+    print("INKINGI RESCUE - RESPONSE TIME REPORT.")
     print("*"*50)
     for emergency in resolved_emergencies:
         emergency_id, time_reported, arrival_time = emergency
@@ -115,8 +115,8 @@ def view_response_time_report():
         print(f"Emergency ID: {emergency_id}.\n Response Time: {response_minutes:.2f} minutes.")
         total_response_time += response_minutes
     average_response_time = total_response_time/len(resolved_emergencies)
-    print(f"The Average Response Time is: {average_response_time:.2f} minutes.")
-    
+    print(f"\nThe Average Response Time is: {average_response_time:.2f} minutes.")
+    print("Returning to the Dispatcher screen.")
         
 #These are the same lists as the reporter menu so both menus save the same values.
 emergency_types = {

@@ -11,19 +11,19 @@ def display_main_menu():
         print("Who are you? ")
         print("1. Reporter")
         print("2. Dispatcher")
-        print("3. Exit")
-        choice = (input("Please select one of the options (1-3): ")).strip()
+        print("0. Exit")
+        choice = (input("Please select one of the options (0-2): ")).strip()
         
 
         if choice == "1":
             reporter_menu()
         elif choice == "2":
             dispatcher_menu()
-        elif choice == "3":
+        elif choice == "0":
             print("Exiting the application...")
             break
         else:
-            print("Invalid choice. Please select one of the options(1-3)")
+            print("Invalid choice. Please select one of the options(0-2)")
 
 
 def main():
@@ -32,8 +32,6 @@ def main():
         return
 
     try:
-        #Removed this print statement to avoid duplicate printing of the welcome message.
-        # print("Welcome to INKINGI Rescue")
         # menus will be called from here
         display_main_menu()
     finally:
