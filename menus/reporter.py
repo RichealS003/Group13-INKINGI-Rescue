@@ -1,5 +1,5 @@
 from utils.validators import get_menu_choice, get_yes_and_no_choice, get_phone_number, get_place_text
-from models.emergency import Emergency, insert_emergency
+from models.emergency import Emergency
 from database import database as db
 
 emergency_types_dict = {
@@ -42,17 +42,17 @@ def report_emergency():
     print("\n--------------------Report Emergency--------------------")
 
     #Getting emergency type
-    emergency_type_input = get_menu_choice("1. What type of emergency are you reporting""\n1. Road accident \n2.Medical emergency \n3. Fire \n4. Other", 1, 4)
+    emergency_type_input = get_menu_choice("1. What type of emergency are you reporting""\n1. Road accident \n2.Medical emergency \n3. Fire \n4. Other\n\nType a number between 1-4: ", 1, 4)
     emergency_type = emergency_types_dict[emergency_type_input]
 
     #Getting district
-    district = get_place_text("2. Which district did the emergency occur in? (eg: Gasabo) ")
+    district = get_place_text("2. Which district did the emergency occur in? (eg: Gasabo)\n\nType the district name: ")
 
     #Getting landmark
-    landmark = get_place_text("3. What is the nearest landmark? (eg: Simba Supermarket)")
+    landmark = get_place_text("3. What is the nearest landmark? (eg: Simba Supermarket)\n\nType the landmark name: ")
 
     #Getting severity level
-    severity_input = get_menu_choice("What is the severity level? ""\n1. Low \n2. Medium \n3. High \n4. Critical", 1,4)
+    severity_input = get_menu_choice("What is the severity level? ""\n1. Low \n2. Medium \n3. High \n4. Critical\n\nType a number between 1-4: ", 1,4)
     severity = severity_levels[severity_input]
 
     #Getting phone number
@@ -70,12 +70,14 @@ def report_emergency():
         emergency_type=emergency_type,
         district=district,
         landmark=landmark,
-        severity=severity_input,
-        phone=phone_number)
+        severity=severity,
+        caller_number=phone_number)
 
-    if not insert_emergency(emergency_report):
+    if not emergency_report.insert_emergencies():
         print("The report couldn't be saved. Please try again.")
         return None
+
+    report_preview(emergency_report.emergency_id, emergency_type, district, landmark, severity)
 
 
 #CIRCLE OF TRUST UPDATE FUNCTION----------------------------------
